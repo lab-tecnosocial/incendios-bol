@@ -13,21 +13,28 @@ meses <- c(1:12)
 load("output/incendios_bol.RData")
 
 # ui
-ui <- fluidPage(
-    theme = bslib::bs_theme(bootswatch = "darkly"),
-    titlePanel("Dashboard de incendios en Bolivia 2003-2021"),
-    
-    sidebarLayout(
-      
-      sidebarPanel(sliderInput(inputId = "year", label = "año",min = 2003, max = 2021, value = 2003, sep = ""),
-                   plotOutput(outputId = "plot_calor"),
-                   plotOutput(outputId = "plot_energia")
-                   ),
-      
-      mainPanel(mapdeckOutput(outputId = "mapa_incendios", height = "600px"))
-      )
-    
+ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
+                 theme = bslib::bs_theme(bootswatch = "darkly"),
+                 tabPanel("Mapa",
+                          fluidPage(
+                            fluidRow(
+                              column(12,
+                                     sliderInput(inputId = "year", label = "año",min = 2003, max = 2021, value = 2003, animate = T, width = "100%", sep = "")
+                                     )
+                            ),
+                            fluidRow(
+                              column(8,
+                                     mapdeckOutput(outputId = "mapa_incendios", height = "75vh")
+                                     ),
+                              column(4,
+                                     plotOutput(outputId = "plot_calor", height = "50%"),
+                                     plotOutput(outputId = "plot_energia", height = "50%")
+                                     )
+                            )
+                          )),
+                 tabPanel("Datos")
 )
+  
 
 # server
 server <- function(input, output, session) {
