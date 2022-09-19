@@ -89,7 +89,6 @@ server <- function(input, output, session) {
                     # elevation_function = "mean",
                     # elevation_scale = 40,
                     legend = T,
-                    legend_options = 
                     update_view = FALSE)
     })
 
