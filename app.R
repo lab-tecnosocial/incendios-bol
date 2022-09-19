@@ -32,8 +32,10 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                                      mapdeckOutput(outputId = "mapa_incendios", height = "75vh")
                                      ),
                               column(4,
-                                     plotOutput(outputId = "plot_calor", height = "50%"),
-                                     plotOutput(outputId = "plot_energia", height = "50%")
+                                     h6("Temperaturas registradas en incendios en °C"),
+                                     plotOutput(outputId = "plot_calor", height = "250px"),
+                                     h6("Poder radiativo del fuego, en megawatts"),
+                                     plotOutput(outputId = "plot_energia", height = "250px")
                                      )
                             )
                           )),
@@ -87,24 +89,35 @@ server <- function(input, output, session) {
                     # elevation_function = "mean",
                     # elevation_scale = 40,
                     legend = T,
+                    legend_options = 
                     update_view = FALSE)
     })
 
     output$plot_calor <- renderPlot({
       incendios_bol %>% filter(year == input$year) %>%
         ggplot(aes(x = celsius)) +
-        geom_histogram(bins = 15) +
+        geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
         theme_minimal(base_size = 20) + 
-        theme(panel.grid.major = element_blank())
+        theme(panel.grid.major = element_blank(),
+              plot.background = element_rect(fill = "#09101d"),
+              axis.text.x = element_text(color="#8CAEBA", 
+                                         size=12),
+              axis.text.y = element_blank()) +
+        labs(x = NULL, y = NULL)
     })
     
     output$plot_energia <- renderPlot({
       incendios_bol %>% filter(year == input$year) %>%
         ggplot(aes(x = frp)) +
         scale_x_log10() +
-        geom_histogram(bins = 15) +
+        geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
         theme_minimal(base_size = 20) + 
-        theme(panel.grid.major = element_blank())
+        theme(panel.grid.major = element_blank(),
+              plot.background = element_rect(fill = "#09101d"),
+              axis.text.x = element_text(color="#8CAEBA", 
+                                         size=12 ),
+              axis.text.y = element_blank()) +
+        labs(x = NULL, y = NULL)
     })
     
     output$tabla <- renderDT({
