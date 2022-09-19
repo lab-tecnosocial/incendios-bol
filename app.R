@@ -1,6 +1,8 @@
 library(shiny)
 library(mapdeck)
 library(tidyverse)
+library(DT)
+library(bslib)
 
 # Requisitos:
 # 1. un cuadro de inputs
@@ -14,7 +16,7 @@ load("output/incendios_bol.RData")
 
 # ui
 ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
-                 theme = bslib::bs_theme(bootswatch = "darkly"),
+                 theme = bs_theme(bootswatch = "darkly"),
                  tabPanel("Mapa",
                           fluidPage(
                             fluidRow(
@@ -32,7 +34,10 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                                      )
                             )
                           )),
-                 tabPanel("Datos")
+                 tabPanel("Datos",
+                          DTOutput("tabla"),
+                          downloadButton("descargar", "Descargar CSV")
+                          )
 )
   
 
@@ -57,9 +62,9 @@ server <- function(input, output, session) {
         mapdeck(token = key,
                 max_zoom = 8,
                 min_zoom = 5,
-                style = mapdeck_style("dark"),
+                style = "mapbox://styles/labtecnosocial/cl87dy62v000r15lalgia22lg",
                 zoom = 5,
-                pitch = 20,
+                # pitch = 20,
                 location = c(-66.24375678696428, -15.940670400011369))
     })
     
@@ -74,9 +79,9 @@ server <- function(input, output, session) {
                     colour = "quartil",
                     colour_function = "mean",
                     colour_range = paleta_incendios,
-                    elevation = "celsius",
-                    elevation_function = "mean",
-                    elevation_scale = 40,
+                    # elevation = "celsius",
+                    # elevation_function = "mean",
+                    # elevation_scale = 40,
                     update_view = FALSE)
     })
 
@@ -94,6 +99,24 @@ server <- function(input, output, session) {
         geom_histogram(bins = 15) +
         theme_minimal()
     })
+    
+    output$tabla <- renderDT({
+      incendios_bol %>% filter(year == input$year) %>%
+        datatable(style = "bootstrap", extensions = 'Responsive', options = list(
+          language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'),
+          searching = F,
+          dom = "lti"
+        ))
+    })
+    output$descargar <- downloadHandler(
+      filename = function() {
+        paste0(input$year, ".csv")
+      },
+      content = function(file) {
+        datos_filt <- incendios_bol %>% filter(year == input$year) 
+        write.csv(datos_filt, file)
+      }
+    )
 }
 
 # Run the application 
