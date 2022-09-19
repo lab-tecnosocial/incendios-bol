@@ -1,0 +1,9 @@
+.tickContainer, .labelContainer {
+  display: none !important;
+}
+
+.labelContainer:after {
+  content: "xxx";
+  visibility: visible;
+
+}

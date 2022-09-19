@@ -17,9 +17,10 @@ incendios_bol <- incendios_bol %>%
   mutate(year = year(acq_date),
          celsius = (brightness - 273.15),
          mes = month(acq_date),
-         quartil = ntile(celsius, 10)) # # temperatura de kelvin a celsius
+         decil = ntile(celsius, 10)) # # temperatura de kelvin a celsius
   
 
 # guardamos la informacion para la app
 save(incendios_bol, file = "output/incendios_bol.RData")
 write.csv(incendios_bol, file = "output/incendios_2000_2021.csv")
+

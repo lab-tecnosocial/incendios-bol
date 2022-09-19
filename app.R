@@ -16,12 +16,15 @@ load("output/incendios_bol.RData")
 
 # ui
 ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
-                 theme = bs_theme(bootswatch = "darkly"),
+                 theme = bs_theme(bootswatch = "cyborg"),
                  tabPanel("Mapa",
                           fluidPage(
+                            tags$head(
+                              tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+                            ),
                             fluidRow(
                               column(12,
-                                     sliderInput(inputId = "year", label = "año",min = 2003, max = 2021, value = 2003, animate = T, width = "100%", sep = "")
+                                     sliderInput(inputId = "year", label = "Año",min = 2003, max = 2021, value = 2003, animate = T, width = "100%", sep = "")
                                      )
                             ),
                             fluidRow(
@@ -57,6 +60,7 @@ server <- function(input, output, session) {
     paleta_incendios <- c("#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300")
     key <- "pk.eyJ1IjoibGFidGVjbm9zb2NpYWwiLCJhIjoiY2ttaHJ2N2FwMGE4NjJ5cXVneHN2cWRzYiJ9.MT3xcDnYAz2m1LvjBHRQwQ"
     
+    
     # el mapa
     output$mapa_incendios <- renderMapdeck({
         mapdeck(token = key,
@@ -76,12 +80,13 @@ server <- function(input, output, session) {
                     lon = "longitude",
                     lat = "latitude",
                     radius = 5000,
-                    colour = "quartil",
+                    colour = "decil",
                     colour_function = "mean",
                     colour_range = paleta_incendios,
                     # elevation = "celsius",
                     # elevation_function = "mean",
                     # elevation_scale = 40,
+                    legend = T,
                     update_view = FALSE)
     })
 
@@ -89,7 +94,8 @@ server <- function(input, output, session) {
       incendios_bol %>% filter(year == input$year) %>%
         ggplot(aes(x = celsius)) +
         geom_histogram(bins = 15) +
-        theme_minimal()
+        theme_minimal(base_size = 20) + 
+        theme(panel.grid.major = element_blank())
     })
     
     output$plot_energia <- renderPlot({
@@ -97,7 +103,8 @@ server <- function(input, output, session) {
         ggplot(aes(x = frp)) +
         scale_x_log10() +
         geom_histogram(bins = 15) +
-        theme_minimal()
+        theme_minimal(base_size = 20) + 
+        theme(panel.grid.major = element_blank())
     })
     
     output$tabla <- renderDT({
