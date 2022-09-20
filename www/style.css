@@ -7,3 +7,34 @@
   visibility: visible;
 
 }
+
+.legendTitle {
+  display: none !important;
+}
+
+
+
+#mapa_incendioslegendhexagon-defaultLayerIdfill_colour {
+  background-color: black !important;
+  border: none !important;
+}
+
+
+navbar, navbar-default, navbar-static-top {
+  background-color: #112431 !important;
+}
+
+
+#tab-2049-1 > div > div:nth-child(1) > div > div > div {
+  display: flex;
+  justify-content: center;
+}
+#tab-2049-1 > div > div:nth-child(1) > div > div > div > a > span.play > i, #tab-2049-1 > div > div:nth-child(1) > div > div > div > a > span.pause > i {
+    color: red !important;
+    font-size: 1.3rem;
+
+}
+
+#credito {
+  text-align: right;
+}

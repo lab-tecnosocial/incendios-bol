@@ -16,7 +16,13 @@ load("output/incendios_bol.RData")
 
 # ui
 ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
-                 theme = bs_theme(bootswatch = "cyborg"),
+                 theme = bs_theme(
+                   bg = "#09101d",
+                   fg = "#FFFFFF",
+                   primary = "#112431", 
+                   base_font = font_google("Roboto Condensed")
+                   
+                 ),
                  tabPanel("Mapa",
                           fluidPage(
                             tags$head(
@@ -35,9 +41,13 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                                      h6("Temperaturas registradas en incendios en °C"),
                                      plotOutput(outputId = "plot_calor", height = "250px"),
                                      h6("Poder radiativo del fuego, en megawatts"),
-                                     plotOutput(outputId = "plot_energia", height = "250px")
+                                     plotOutput(outputId = "plot_energia", height = "250px"),
+                                     br(),
+                                     br(),
+                                     p(id = "credito", "Desarrollado por el  ", tags$a(href = "https://labtecnosocial.org/", tags$img(src = "https://labtecnosocial.org/wp-content/uploads/2021/07/cropped-logo-claro-300x149.png", width = "50px")))
                                      )
-                            )
+                            ),
+                            tags$script(src = "script.js")
                           )),
                  tabPanel("Datos",
                           DTOutput("tabla"),
@@ -48,21 +58,21 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
 
 # server
 server <- function(input, output, session) {
-  
+
   thematic::thematic_shiny()
-    
+
     # hacemos los datos reactivos
     #datos <- reactive({
-     #   incendios_bol %>% 
+     #   incendios_bol %>%
       #      filter(year == year_incendio$input)
     #})
-    
+
     # cargamos datos necesarios para el mapa
     #bolivia_base <- read_file("data/bolivia-departamentos.geojson")
     paleta_incendios <- c("#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300")
     key <- "pk.eyJ1IjoibGFidGVjbm9zb2NpYWwiLCJhIjoiY2ttaHJ2N2FwMGE4NjJ5cXVneHN2cWRzYiJ9.MT3xcDnYAz2m1LvjBHRQwQ"
-    
-    
+
+
     # el mapa
     output$mapa_incendios <- renderMapdeck({
         mapdeck(token = key,
@@ -73,10 +83,10 @@ server <- function(input, output, session) {
                 # pitch = 20,
                 location = c(-66.24375678696428, -15.940670400011369))
     })
-    
+
     observeEvent(input$year, {
       datofilt <- incendios_bol %>% filter(year == input$year)
-      
+
       mapdeck_update(map_id = "mapa_incendios") %>%
         add_hexagon(data = datofilt,
                     lon = "longitude",
@@ -96,29 +106,29 @@ server <- function(input, output, session) {
       incendios_bol %>% filter(year == input$year) %>%
         ggplot(aes(x = celsius)) +
         geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
-        theme_minimal(base_size = 20) + 
+        theme_minimal(base_size = 20) +
         theme(panel.grid.major = element_blank(),
               plot.background = element_rect(fill = "#09101d"),
-              axis.text.x = element_text(color="#8CAEBA", 
+              axis.text.x = element_text(color="#8CAEBA",
                                          size=12),
               axis.text.y = element_blank()) +
         labs(x = NULL, y = NULL)
     })
-    
+
     output$plot_energia <- renderPlot({
       incendios_bol %>% filter(year == input$year) %>%
         ggplot(aes(x = frp)) +
         scale_x_log10() +
         geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
-        theme_minimal(base_size = 20) + 
+        theme_minimal(base_size = 20) +
         theme(panel.grid.major = element_blank(),
               plot.background = element_rect(fill = "#09101d"),
-              axis.text.x = element_text(color="#8CAEBA", 
+              axis.text.x = element_text(color="#8CAEBA",
                                          size=12 ),
               axis.text.y = element_blank()) +
         labs(x = NULL, y = NULL)
     })
-    
+
     output$tabla <- renderDT({
       incendios_bol %>% filter(year == input$year) %>%
         datatable(style = "bootstrap", extensions = 'Responsive', options = list(
@@ -132,7 +142,7 @@ server <- function(input, output, session) {
         paste0(input$year, ".csv")
       },
       content = function(file) {
-        datos_filt <- incendios_bol %>% filter(year == input$year) 
+        datos_filt <- incendios_bol %>% filter(year == input$year)
         write.csv(datos_filt, file)
       }
     )
