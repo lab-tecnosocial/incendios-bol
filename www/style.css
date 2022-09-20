@@ -1,40 +1,30 @@
-.tickContainer, .labelContainer {
-  display: none !important;
-}
+/* Navbar */
 
-.labelContainer:after {
-  content: "xxx";
-  visibility: visible;
-
-}
-
-.legendTitle {
-  display: none !important;
-}
-
-
-
-#mapa_incendioslegendhexagon-defaultLayerIdfill_colour {
-  background-color: black !important;
-  border: none !important;
-}
-
-
-navbar, navbar-default, navbar-static-top {
+.navbar.navbar-default.navbar-static-top {
   background-color: #112431 !important;
 }
 
 
-#tab-2049-1 > div > div:nth-child(1) > div > div > div {
+/*Leyenda de mapa*/
+
+
+
+
+/* Animate */
+
+.slider-animate-container {
   display: flex;
   justify-content: center;
 }
-#tab-2049-1 > div > div:nth-child(1) > div > div > div > a > span.play > i, #tab-2049-1 > div > div:nth-child(1) > div > div > div > a > span.pause > i {
+.glyphicon.glyphicon-play,  .glyphicon.glyphicon-pause {
     color: red !important;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
 
 }
 
+/* Credito */
 #credito {
-  text-align: right;
+  text-align: center;
 }
+
+

@@ -13,6 +13,7 @@ library(bslib)
 years <- c(2003:2021)
 meses <- c(1:12)
 load("output/incendios_bol.RData")
+deps <- read_file("data/bolivia-departamentos.geojson")
 
 # ui
 ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
@@ -26,7 +27,8 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                  tabPanel("Mapa",
                           fluidPage(
                             tags$head(
-                              tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+                              tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+                              tags$script(src = "script.js", defer = T)
                             ),
                             fluidRow(
                               column(12,
@@ -35,7 +37,7 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                             ),
                             fluidRow(
                               column(8,
-                                     h6("Promedio de temperaturas de focos de calor en un radio de 5 km (°C)"),
+                                     h6("Promedio de temperaturas de focos de calor en radios de 5 km (°C)"),
                                      mapdeckOutput(outputId = "mapa_incendios", height = "75vh")
                                      ),
                               column(4,
@@ -45,10 +47,12 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                                      plotOutput(outputId = "plot_energia", height = "250px"),
                                      br(),
                                      br(),
-                                     p(id = "credito", "Desarrollado por el  ", tags$a(href = "https://labtecnosocial.org/", tags$img(src = "https://labtecnosocial.org/wp-content/uploads/2021/07/cropped-logo-claro-300x149.png", width = "50px")))
+                                     br(),
+                                     br(),
+                                     p(id = "credito", "Desarrollado por el  ", tags$a(href = "https://labtecnosocial.org/", tags$img(src = "logo-oscuro.png", width = "70px")))
                                      )
                             ),
-                            tags$script(src = "script.js")
+                            
                           )),
                  tabPanel("Datos",
                           DTOutput("tabla"),
@@ -72,7 +76,15 @@ server <- function(input, output, session) {
     #bolivia_base <- read_file("data/bolivia-departamentos.geojson")
     paleta_incendios <- c("#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300")
     key <- "pk.eyJ1IjoibGFidGVjbm9zb2NpYWwiLCJhIjoiY2ttaHJ2N2FwMGE4NjJ5cXVneHN2cWRzYiJ9.MT3xcDnYAz2m1LvjBHRQwQ"
-
+    
+    # leyenda
+    leg <- legend_element(
+      variables = c("233°", "", "", "", "", "28°")
+      , colours = rev(paleta_incendios)
+      , colour_type = "fill"
+      , variable_type = "gradient",
+      css = "background-color: black; color: white"
+    )
 
     # el mapa
     output$mapa_incendios <- renderMapdeck({
@@ -82,7 +94,12 @@ server <- function(input, output, session) {
                 style = "mapbox://styles/labtecnosocial/cl87dy62v000r15lalgia22lg",
                 zoom = 4.9,
                 # pitch = 20,
-                location = c(-66.24375678696428, -15.940670400011369))
+                location = c(-66.24375678696428, -15.940670400011369),
+                ) %>%
+        add_geojson(
+          deps, 
+          legend = mapdeck_legend(leg)
+          )
     })
 
     observeEvent(input$year, {
@@ -99,7 +116,7 @@ server <- function(input, output, session) {
                     # elevation = "celsius",
                     # elevation_function = "mean",
                     # elevation_scale = 40,
-                    legend = T,
+                    legend = F,
                     update_view = FALSE)
     })
 
@@ -112,7 +129,7 @@ server <- function(input, output, session) {
               plot.background = element_rect(fill = "#09101d"),
               axis.text.x = element_text(color="#8CAEBA",
                                          size=12),
-              axis.text.y = element_blank()) +
+              axis.text.y = element_text(color="#8CAEBA")) +
         labs(x = NULL, y = NULL)
     })
 
@@ -126,7 +143,7 @@ server <- function(input, output, session) {
               plot.background = element_rect(fill = "#09101d"),
               axis.text.x = element_text(color="#8CAEBA",
                                          size=12 ),
-              axis.text.y = element_blank()) +
+              axis.text.y = element_text(color="#8CAEBA")) +
         labs(x = NULL, y = NULL)
     })
 
