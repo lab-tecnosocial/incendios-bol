@@ -35,6 +35,7 @@ ui <- navbarPage("Dashboard de incendios en Bolivia 2003-2021",
                             ),
                             fluidRow(
                               column(8,
+                                     h6("Promedio de temperaturas de focos de calor en un radio de 5 km (°C)"),
                                      mapdeckOutput(outputId = "mapa_incendios", height = "75vh")
                                      ),
                               column(4,
@@ -77,9 +78,9 @@ server <- function(input, output, session) {
     output$mapa_incendios <- renderMapdeck({
         mapdeck(token = key,
                 max_zoom = 8,
-                min_zoom = 5,
+                min_zoom = 4.9,
                 style = "mapbox://styles/labtecnosocial/cl87dy62v000r15lalgia22lg",
-                zoom = 5,
+                zoom = 4.9,
                 # pitch = 20,
                 location = c(-66.24375678696428, -15.940670400011369))
     })
