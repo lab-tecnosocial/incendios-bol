@@ -7,7 +7,9 @@
 
 /*Leyenda de mapa*/
 
-
+.mapboxgl-ctrl, .mapboxgl-ctrl-logo {
+ display: none !important; 
+}
 
 
 /* Animate */

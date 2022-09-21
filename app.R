@@ -67,22 +67,21 @@ server <- function(input, output, session) {
   thematic::thematic_shiny()
 
     # hacemos los datos reactivos
-    #datos <- reactive({
-     #   incendios_bol %>%
-      #      filter(year == year_incendio$input)
-    #})
+    datos <- reactive({
+      incendios_bol %>%
+         filter(year == input$year)
+    })
 
     # cargamos datos necesarios para el mapa
-    #bolivia_base <- read_file("data/bolivia-departamentos.geojson")
     paleta_incendios <- c("#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300")
     key <- "pk.eyJ1IjoibGFidGVjbm9zb2NpYWwiLCJhIjoiY2ttaHJ2N2FwMGE4NjJ5cXVneHN2cWRzYiJ9.MT3xcDnYAz2m1LvjBHRQwQ"
     
     # leyenda
     leg <- legend_element(
-      variables = c("233°", "", "", "", "", "28°")
-      , colours = rev(paleta_incendios)
-      , colour_type = "fill"
-      , variable_type = "gradient",
+      variables = c("233°", "", "", "", "", "28°"), 
+      colours = rev(paleta_incendios), 
+      colour_type = "fill", 
+      variable_type = "gradient",
       css = "background-color: black; color: white"
     )
 
@@ -102,26 +101,25 @@ server <- function(input, output, session) {
           )
     })
 
-    observeEvent(input$year, {
-      datofilt <- incendios_bol %>% filter(year == input$year)
-
-      mapdeck_update(map_id = "mapa_incendios") %>%
-        add_hexagon(data = datofilt,
-                    lon = "longitude",
-                    lat = "latitude",
-                    radius = 5000,
-                    colour = "decil",
-                    colour_function = "mean",
-                    colour_range = paleta_incendios,
-                    # elevation = "celsius",
-                    # elevation_function = "mean",
-                    # elevation_scale = 40,
-                    legend = F,
-                    update_view = FALSE)
-    })
+    observeEvent(datos(),
+         mapdeck_update(map_id = "mapa_incendios") %>%
+           add_hexagon(data = datos(),
+                       lon = "longitude",
+                       lat = "latitude",
+                       radius = 5000,
+                       colour = "decil",
+                       colour_function = "mean",
+                       colour_range = paleta_incendios,
+                       # elevation = "celsius",
+                       # elevation_function = "mean",
+                       # elevation_scale = 40,
+                       legend = F,
+                       update_view = FALSE)
+                 )
+     
 
     output$plot_calor <- renderPlot({
-      incendios_bol %>% filter(year == input$year) %>%
+      datos() %>%
         ggplot(aes(x = celsius)) +
         geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
         theme_minimal(base_size = 20) +
@@ -134,7 +132,7 @@ server <- function(input, output, session) {
     })
 
     output$plot_energia <- renderPlot({
-      incendios_bol %>% filter(year == input$year) %>%
+      datos() %>%
         ggplot(aes(x = frp)) +
         scale_x_log10() +
         geom_histogram(bins = 15, fill = "#2c4f68", alpha = 0.8) +
@@ -148,7 +146,7 @@ server <- function(input, output, session) {
     })
 
     output$tabla <- renderDT({
-      incendios_bol %>% filter(year == input$year) %>%
+      datos() %>%
         datatable(style = "bootstrap", extensions = 'Responsive', options = list(
           language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'),
           searching = F,
@@ -160,7 +158,7 @@ server <- function(input, output, session) {
         paste0(input$year, ".csv")
       },
       content = function(file) {
-        datos_filt <- incendios_bol %>% filter(year == input$year)
+        datos_filt <- datos()
         write.csv(datos_filt, file)
       }
     )
